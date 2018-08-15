@@ -97,3 +97,33 @@ level3
 
 
 ## level02_alt.c
+```C
+/* submitted by noname */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#define answer 3.141593
+void main(int argc, char **argv) {
+	float a = (argc - 2)?: strtod(argv[1], 0);
+        printf("You provided the number %f which is too ", a);
+        if(a < answer)
+                 puts("low");
+        else if(a > answer)
+                puts("high");
+        else
+                execl("/bin/sh", "sh", "-p", NULL);
+}
+```
+The above took me a while to solve. You might expect keying in 3.141593 to give you an easy shell. However, the trap is that this is a floating point number. In computer science, comparison with a floating point such as `==` can be very dangerous because it can never be true. 
+
+To solve this challenge, you need to recognize that you have to fail the first 2 condition ( a < answer ) and ( a > answer ). Lets read the man page for `strtod`
+
+![man page strtod](./images/image2.png)
+
+Turns out that `strtod` allows one to specific special tokens like INF for infinity and NAN for not a number. By specifying NAN, both conditions will fail regardlessly hence allowing us to go into the else function.
+
+```sh
+level2@io:/levels$ ./level02_alt NAN
+sh-4.3$ id
+uid=1002(level2) gid=1002(level2) euid=1003(level3) groups=1002(level2),1029(nosu)
+```
