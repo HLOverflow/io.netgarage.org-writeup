@@ -40,7 +40,7 @@ int main(int argc, char **argv, char **envp)
 This program introduce the concept of bufferoverflow to overwrite nearby local variable (more specifically, variables below the buffer) . 
 
 ## Inside a Stack Frame
-insert drawing here
+![stack frame](./images/image1.png)
 
 The variable functionpointer is store below the variable buffer.
 
@@ -60,6 +60,16 @@ printf("value of b: %d\n", b);
 printf("value of a: %d\n", a);
 printf("value of a: %d\n", *ptr);
 printf("value of b: %d\n", b);
+```
+Output
+
+```sh
+value of a: 5
+value of a: 5
+value of b: 5
+value of a: 10
+value of a: 10
+value of b: 5
 ```
 Both variable a and b contains the value 5. However, a and b are stored in 2 different memory location. When we assign address of a to ptr. ptr now refers specifically to the memory location of a. When we change the value at the memory with deferencing, the value of a also changes. b still remains unchanged because b is at another memory location.
 
