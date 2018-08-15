@@ -115,6 +115,7 @@ void main(int argc, char **argv) {
 }
 ```
 The above took me a while to solve. You might expect keying in 3.141593 to give you an easy shell. However, the trap is that this is a floating point number. In computer science, comparison with a floating point such as `==` can be very dangerous because it can never be true. 
+( you can login to level3 and read the write up inside which explains why it will never be true. )
 
 To solve this challenge, you need to recognize that you have to fail the first 2 condition ( a < answer ) and ( a > answer ). Lets read the man page for `strtod`
 

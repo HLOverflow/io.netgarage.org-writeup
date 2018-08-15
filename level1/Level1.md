@@ -12,7 +12,7 @@ level1@io:/levels$ file level01
 level01: setuid ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), statically linked, not stripped
 ```
 
-From this simple `file` command, we can see that it is Executable Linkable Format. 32 bits architecture and writen for the intel cpu. 
+From this simple `file` command, we can see that it is Executable Linkable Format. 32 bits architecture and written for the intel cpu. 
 
 ```sh
 level1@io:/levels$ strings level01
