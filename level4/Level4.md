@@ -54,7 +54,7 @@ level4@io:/tmp/t$ /levels/level04
 sh-4.3$ id
 Welcome uid=1004(level4) gid=1004(level4) euid=1005(level5) groups=1004(level4),1029(nosu)
 ```
-We have prepending a "." in the $PATH. The OS will start searching from current directory first for a `whoami`. We can see that our euid is level5.
+We have prepended a "." in the $PATH. The OS will start searching from current directory first for a `whoami`. We can see that our euid is level5.
 
 ## level04_alt.c
 ```C
@@ -65,3 +65,6 @@ int main(){
 	system("/usr/bin/id");
 }
 ```
+
+The challenge is broken at the moment.
+
