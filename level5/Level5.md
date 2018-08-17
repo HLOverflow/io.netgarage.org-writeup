@@ -56,8 +56,11 @@ and remove the frame when it exits (epilogue). The net increase/decrease before 
 #### What is the purpose of return address? 
 
 ##### basic background of x86 intel assembly
+
 $eip = instruction pointer (contains address of next instruction)
+
 $esp = stack pointer (indicates which address is considered top of stack)
+
 $ebp = base pointer (a constant reference point that provide convenience in relative addressing of variables and arguments.)
 
 common format of intel assembly
