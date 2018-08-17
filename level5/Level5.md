@@ -82,7 +82,7 @@ Supposed there is a small function `<func1>` that just compute `eax = eax + 2`.
 When the main function jump to func1, how does it know where to continue execution upon finishing func1?
 
 In order for execution to continue at `<main+15>`, the next address `0x0804123e` need to be saved somewhere.
-The register is one option but registers are very expensive. Hence, the next option is to save on the stack.
+The register is one option but registers are very precious and limited in numbers. Hence, the next option is to save on the stack.
 
 When `func1` sees a `ret` (return statement), it will pop the return address back into $eip (instruction pointer). $eip will tell the CPU, where is the next set of instruction (`mov ebx, eax`).
 
