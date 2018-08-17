@@ -46,7 +46,7 @@ Since there is no local variables like in level 4 that will conveniently spawn a
 It is stored at the bottom of a function stack frame, above arugments but below local variables, thus it can be overwritten just like in level 4.
 
 #### Why is this value on the stack?
-This value is stored on the stack because the the assembly code `call <func1>` does 2 steps implicitly.
+This value is stored on the stack because the assembly code from the caller `call <func1>` does 2 steps implicitly.
 1. push address of next instruction to stack
 2. jump the address of the desired function.
 
