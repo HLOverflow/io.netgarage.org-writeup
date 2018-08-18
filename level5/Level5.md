@@ -46,7 +46,7 @@ Since there is no local variables like in level 4 that will conveniently spawn a
 It is stored at the bottom of a function stack frame, above arugments but below local variables, thus it can be overwritten just like in level 4.
 
 #### Why is this value on the stack?
-This value is stored on the stack because the the assembly code `call <func1>` does 2 steps implicitly.
+This value is stored on the stack because the assembly code from the caller `call <func1>` does 2 steps implicitly.
 1. push address of next instruction to stack
 2. jump the address of the desired function.
 
@@ -56,8 +56,11 @@ and remove the frame when it exits (epilogue). The net increase/decrease before 
 #### What is the purpose of return address? 
 
 ##### basic background of x86 intel assembly
+
 $eip = instruction pointer (contains address of next instruction)
+
 $esp = stack pointer (indicates which address is considered top of stack)
+
 $ebp = base pointer (a constant reference point that provide convenience in relative addressing of variables and arguments.)
 
 common format of intel assembly
@@ -79,7 +82,7 @@ Supposed there is a small function `<func1>` that just compute `eax = eax + 2`.
 When the main function jump to func1, how does it know where to continue execution upon finishing func1?
 
 In order for execution to continue at `<main+15>`, the next address `0x0804123e` need to be saved somewhere.
-The register is one option but registers are very expensive. Hence, the next option is to save on the stack.
+The register is one option but registers are very precious and limited in numbers. Hence, the next option is to save on the stack.
 
 When `func1` sees a `ret` (return statement), it will pop the return address back into $eip (instruction pointer). $eip will tell the CPU, where is the next set of instruction (`mov ebx, eax`).
 
