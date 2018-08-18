@@ -370,6 +370,128 @@ In the above code, the program memory mapped 2 areas in the memory. The newstack
 
 To verify, we can use gdb peda's `vmmap` before and after each get region.
 
+```gdb
+set pagination off
+
+source /usr/local/peda/peda.py
+
+break main
+commands
+vmmap
+continue
+end
+
+break *main+40
+commands
+vmmap
+continue
+end
+
+break *main+63
+commands
+vmmap
+end
+```
+We can save the above gdb commands as `gdbscript`
+
+```sh
+(gdb) source gdbscript 
+Breakpoint 1 at 0x8048602
+Breakpoint 2 at 0x804861c
+Breakpoint 3 at 0x8048633
+gdb-peda$ run
+Starting program: /levels/level05_alt 
+Start      End        Perm	Name
+0x08048000 0x08049000 r-xp	/levels/level05_alt
+0x08049000 0x0804a000 rw-p	/levels/level05_alt
+0x0804a000 0x0806b000 rw-p	[heap]
+0xb7e0e000 0xb7fbf000 r-xp	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fbf000 0xb7fc0000 ---p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc0000 0xb7fc2000 r--p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc2000 0xb7fc3000 rw-p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc3000 0xb7fc6000 rw-p	mapped
+0xb7fd4000 0xb7fd7000 rw-p	mapped
+0xb7fd7000 0xb7fd9000 r--p	[vvar]
+0xb7fd9000 0xb7fdb000 r-xp	[vdso]
+0xb7fdb000 0xb7ffe000 r-xp	/lib/i386-linux-gnu/ld-2.24.so
+0xb7ffe000 0xb7fff000 r--p	/lib/i386-linux-gnu/ld-2.24.so
+0xb7fff000 0xb8000000 rw-p	/lib/i386-linux-gnu/ld-2.24.so
+0xbffdf000 0xc0000000 rw-p	[stack]
+
+Breakpoint 2, 0x0804861c in main ()
+Start      End        Perm	Name
+0x08048000 0x08049000 r-xp	/levels/level05_alt
+0x08049000 0x0804a000 rw-p	/levels/level05_alt
+0x0804a000 0x0806b000 rw-p	[heap]
+0x7abbb000 0x7abcc000 rw-p	mapped
+0xb7e0e000 0xb7fbf000 r-xp	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fbf000 0xb7fc0000 ---p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc0000 0xb7fc2000 r--p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc2000 0xb7fc3000 rw-p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc3000 0xb7fc6000 rw-p	mapped
+0xb7fd4000 0xb7fd7000 rw-p	mapped
+0xb7fd7000 0xb7fd9000 r--p	[vvar]
+0xb7fd9000 0xb7fdb000 r-xp	[vdso]
+0xb7fdb000 0xb7ffe000 r-xp	/lib/i386-linux-gnu/ld-2.24.so
+0xb7ffe000 0xb7fff000 r--p	/lib/i386-linux-gnu/ld-2.24.so
+0xb7fff000 0xb8000000 rw-p	/lib/i386-linux-gnu/ld-2.24.so
+0xbffdf000 0xc0000000 rw-p	[stack]
+
+Breakpoint 3, 0x08048633 in main ()
+Start      End        Perm	Name
+0x08048000 0x08049000 r-xp	/levels/level05_alt
+0x08049000 0x0804a000 rw-p	/levels/level05_alt
+0x0804a000 0x0806b000 rw-p	[heap]
+0x7abbb000 0x7abcc000 rw-p	mapped
+0x903f5000 0x90406000 rwxp	mapped
+0xb7e0e000 0xb7fbf000 r-xp	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fbf000 0xb7fc0000 ---p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc0000 0xb7fc2000 r--p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc2000 0xb7fc3000 rw-p	/lib/i386-linux-gnu/libc-2.24.so
+0xb7fc3000 0xb7fc6000 rw-p	mapped
+0xb7fd4000 0xb7fd7000 rw-p	mapped
+0xb7fd7000 0xb7fd9000 r--p	[vvar]
+0xb7fd9000 0xb7fdb000 r-xp	[vdso]
+0xb7fdb000 0xb7ffe000 r-xp	/lib/i386-linux-gnu/ld-2.24.so
+0xb7ffe000 0xb7fff000 r--p	/lib/i386-linux-gnu/ld-2.24.so
+0xb7fff000 0xb8000000 rw-p	/lib/i386-linux-gnu/ld-2.24.so
+0xbffdf000 0xc0000000 rw-p	[stack]
+[----------------------------------registers-----------------------------------]
+EAX: 0x903f5310 --> 0x0 
+EBX: 0x0 
+ECX: 0x6336a312 
+EDX: 0xb7fc23e4 --> 0xb7fc2080 --> 0x1d94ebe0 
+ESI: 0x1 
+EDI: 0xb7fc2000 --> 0x1b3db0 
+EBP: 0xbffffc68 --> 0x0 
+ESP: 0xbffffc40 --> 0x10000 
+EIP: 0x8048633 (<main+63>:	mov    DWORD PTR [ebp-0x8],eax)
+EFLAGS: 0x282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804861f <main+43>:	mov    DWORD PTR [esp+0x4],0x7
+   0x8048627 <main+51>:	mov    DWORD PTR [esp],0x10000
+   0x804862e <main+58>:	call   0x8048789 <getASLRregion>
+=> 0x8048633 <main+63>:	mov    DWORD PTR [ebp-0x8],eax
+   0x8048636 <main+66>:	mov    eax,DWORD PTR [ebp-0x18]
+   0x8048639 <main+69>:	cmp    DWORD PTR [eax],0x1
+   0x804863c <main+72>:	jle    0x8048701 <main+269>
+   0x8048642 <main+78>:	mov    edx,DWORD PTR [ebp-0x18]
+[------------------------------------stack-------------------------------------]
+0000| 0xbffffc40 --> 0x10000 
+0004| 0xbffffc44 --> 0x7 
+0008| 0xbffffc48 --> 0xbffffc58 --> 0xbffffc78 --> 0x0 
+0012| 0xbffffc4c --> 0x8048448 (<_init+44>:	pop    eax)
+0016| 0xbffffc50 --> 0xbffffc80 --> 0x1 
+0020| 0xbffffc54 --> 0x8049b70 --> 0x8049a9c --> 0x1 
+0024| 0xbffffc58 --> 0xbffffc78 --> 0x0 
+0028| 0xbffffc5c --> 0x7abbb578 --> 0x0 
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+```
+
+We can observed 2 new memory regions and their permissions just below `[heap]`.
+
+
 In summary, the program is just copying 1000 bytes of our input into newcode, just right after the loader. The switchcontext then start executing the newcode. 
 With read,write and execution permission, we can put our shellcode into this newcode and let the program run it.
 
